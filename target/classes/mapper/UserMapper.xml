@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wangzhan.mapper.UserMapper">
+    
+    <resultMap type="com.wangzhan.domain.User" id="UserResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="age"    column="age"    />
+        <result property="version"    column="version"    />
+        <result property="deleted"    column="deleted"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectUserVo">
+        select id, name, age, version, deleted, create_time, update_time from user
+    </sql>
+
+    <select id="selectUserList" parameterType="User" resultMap="UserResult">
+        <include refid="selectUserVo"/>
+        <where>
+            <if test="id != null ">
+             and id = #{id}
+            </if>
+            <if test="name != null  and name != ''">
+             and name = #{name}
+            </if>
+            <if test="age != null ">
+             and age = #{age}
+            </if>
+            <if test="version != null ">
+             and version = #{version}
+            </if>
+            <if test="deleted != null ">
+             and deleted = #{deleted}
+            </if>
+            <if test="createTime != null ">
+             and create_time = #{createTime}
+            </if>
+            <if test="updateTime != null ">
+             and update_time = #{updateTime}
+            </if>
+        </where>
+    </select>
+    
+    <select id="selectUserById" parameterType="Long" resultMap="UserResult">
+        <include refid="selectUserVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertUser" parameterType="User" useGeneratedKeys="true" keyProperty="id">
+        insert into user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">
+                name,
+            </if>
+            <if test="age != null">
+                age,
+            </if>
+            <if test="version != null">
+                version,
+            </if>
+            <if test="deleted != null">
+                deleted,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">
+                #{name},
+            </if>
+            <if test="age != null">
+                #{age},
+            </if>
+            <if test="version != null">
+                #{version},
+            </if>
+            <if test="deleted != null">
+                #{deleted},
+            </if>
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime},
+            </if>
+         </trim>
+    </insert>
+
+    <update id="updateUser" parameterType="User">
+        update user
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="age != null">
+                age = #{age},
+            </if>
+            <if test="version != null">
+                version = #{version},
+            </if>
+            <if test="deleted != null">
+                deleted = #{deleted},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteUserById" parameterType="Long">
+        delete from user where id = #{id}
+    </delete>
+
+    <delete id="deleteUserByIds" parameterType="String">
+        delete from user where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

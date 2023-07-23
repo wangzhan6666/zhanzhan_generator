@@ -4,7 +4,7 @@
 
 
 
-![image-20230723113059372](img\image-20230723113059372.png)
+![image-20230723113059372](https://github.com/wangzhan6666/zhanzhan_generator/blob/master/doc/img/image-20230723113059372.png)
 
 
 

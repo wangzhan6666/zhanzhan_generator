@@ -10,7 +10,7 @@
 
 
 
-![image-20230723121554072](img\image-20230723121554072.png)
+![image-20230723121554072](https://github.com/wangzhan6666/zhanzhan_generator/blob/master/doc/img/image-20230723121554072.png)
 
 
 

@@ -5,11 +5,14 @@ import com.wangzhan.domain.GenInfo;
 import com.wangzhan.domain.GenInfoColumn;
 import com.wangzhan.utils.str.StringUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.springframework.util.CollectionUtils;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -18,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class GeneratorUtils {
 
@@ -31,6 +36,12 @@ public class GeneratorUtils {
      */
     private static final String MYBATIS_PATH = "src\\main\\resources\\mapper";
 
+    /***
+     * @description 生成代码
+     * @param genInfo
+     * @author wangzhan
+     * @date 2023/7/23 11:15:17
+     */
     public static void generatorCode(GenInfo genInfo) {
 
         VelocityInitializer.initVelocity();
@@ -49,6 +60,74 @@ public class GeneratorUtils {
                 // 获取文件生成的路径
                 String path = getGenPath(template, genInfo);
                 FileUtils.writeStringToFile(new File(path), sw.toString(), "UTF-8");
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+
+    }
+
+    /**
+     * 生成代码（下载方式）
+     *
+     * @param genInfo
+     * @return 数据
+     */
+    public static byte[] downloadCode(GenInfo genInfo)
+    {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ZipOutputStream zip = new ZipOutputStream(outputStream);
+        generatorCode(genInfo, zip);
+        IOUtils.closeQuietly(zip);
+        return outputStream.toByteArray();
+    }
+
+    /**
+     * 生成zip文件
+     */
+    public static void genCode(HttpServletResponse response, GenInfo genInfo) throws IOException
+    {
+        //
+        byte[] data = downloadCode(genInfo);
+
+        response.reset();
+        response.addHeader("Access-Control-Allow-Origin", "*");
+        response.addHeader("Access-Control-Expose-Headers", "Content-Disposition");
+        response.setHeader("Content-Disposition", "attachment; filename=\"zhanzhan-generator.zip\"");
+        response.addHeader("Content-Length", "" + data.length);
+        response.setContentType("application/octet-stream; charset=UTF-8");
+        IOUtils.write(data, response.getOutputStream());
+    }
+
+    /***
+     * @description 生成代码(下载方式)
+     * @param genInfo
+     * @author wangzhan
+     * @date 2023/7/23 11:15:17
+     */
+    public static void generatorCode(GenInfo genInfo, ZipOutputStream zip) {
+
+        VelocityInitializer.initVelocity();
+
+        // 设置模板参数
+        VelocityContext context = prepareContext(genInfo);
+        // 获取模板信息
+        List<String> templateList = getTemplateList();
+
+        for (String template : templateList) {
+            // 渲染模板
+            StringWriter sw = new StringWriter();
+            Template tpl = Velocity.getTemplate(template, "UTF-8");
+            tpl.merge(context, sw);
+            try {
+                // 获取文件生成的路径
+                String path = getFileName(template, genInfo);
+                // 添加到zip中
+                zip.putNextEntry(new ZipEntry(path));
+                IOUtils.write(sw.toString(), zip, "UTF-8");
+                IOUtils.closeQuietly(sw);
+                zip.flush();
+                zip.closeEntry();
             } catch (IOException e) {
                 System.out.println(e.getMessage());
             }
@@ -253,6 +332,8 @@ public class GeneratorUtils {
     public static final String parseDateToStr() {
         return new SimpleDateFormat("yyyy-MM-dd").format(new Date());
     }
+
+
 
 
 }

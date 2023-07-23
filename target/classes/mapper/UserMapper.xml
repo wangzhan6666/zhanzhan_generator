@@ -18,7 +18,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select id, name, age, version, deleted, create_time, update_time from user
     </sql>
 
-    <select id="selectUserList" parameterType="User" resultMap="UserResult">
+    <select id="selectUserList" parameterType="com.wangzhan.domain.User" resultMap="UserResult">
         <include refid="selectUserVo"/>
         <where>
             <if test="id != null ">
@@ -50,7 +50,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </select>
         
-    <insert id="insertUser" parameterType="User" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertUser" parameterType="com.wangzhan.domain.User" useGeneratedKeys="true" keyProperty="id">
         insert into user
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="name != null and name != ''">
@@ -94,7 +94,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
     </insert>
 
-    <update id="updateUser" parameterType="User">
+    <update id="updateUser" parameterType="com.wangzhan.domain.User">
         update user
         <trim prefix="SET" suffixOverrides=",">
             <if test="name != null and name != ''">
